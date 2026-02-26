@@ -8,5 +8,6 @@ local Shared = {}
 Shared.Guis = {
 	DebugUI = MainGui:WaitForChild("DebugUI"),
 }
+print("Test")
 
 return Shared
