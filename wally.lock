@@ -55,7 +55,7 @@ dependencies = []
 [[package]]
 name = "mahan/minefield"
 version = "0.1.0"
-dependencies = [["bufferize", "egomoose/bufferize@2.1.0"], ["cmdr", "evaera/cmdr@1.12.0"], ["countryservice", "prooheckcp/countryservice@0.2.4"], ["ezvisualz", "arxkdev/ezvisualz@0.0.6"], ["promise", "evaera/promise@4.0.0"], ["satchel", "ronarudoog/satchel@0.1.0"], ["trove", "sleitnick/trove@1.8.0"], ["DataService", "leifstout/dataservice@1.0.0"]]
+dependencies = [["bufferize", "egomoose/bufferize@2.1.0"], ["cmdr", "evaera/cmdr@1.12.0"], ["countryservice", "prooheckcp/countryservice@0.2.4"], ["ezvisualz", "arxkdev/ezvisualz@0.0.6"], ["promise", "evaera/promise@4.0.0"], ["satchel", "ronarudoog/satchel@0.1.0"], ["trove", "sleitnick/trove@1.8.0"], ["dataservice", "leifstout/dataservice@1.0.0"]]
 
 [[package]]
 name = "prooheckcp/countryservice"

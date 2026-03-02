@@ -14,4 +14,7 @@ satchel = "ronarudoog/satchel@0.1.0"
 ezvisualz = "arxkdev/ezvisualz@0.0.6"
 
 [server-dependencies]
-DataService = "leifstout/dataservice@1.0.0"
+dataservice = "leifstout/dataservice@1.0.0"
+
+[place]
+shared-packages = "game.ReplicatedStorage.Packages"
