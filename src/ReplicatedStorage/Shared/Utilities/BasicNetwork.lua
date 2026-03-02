@@ -9,7 +9,7 @@ local isClient = RunService:IsClient()
 local isStudio = RunService:IsStudio()
 
 -- DEFAULT SETTINGS
-local COMPRESSION = true
+local COMPRESSION = false
 local COMPRESSION_LEVEL = 3
 local OBFUSCATE_NAME = true
 local OBFUSCATE_NAME_IN_STUDIO = true
@@ -55,13 +55,13 @@ function BasicNetwork:_processOutgoing(...: any): buffer?
 	return EncodingService:CompressBuffer(bufferredArgs, Enum.CompressionAlgorithm.Zstd, COMPRESSION_LEVEL)
 end
 
-function BasicNetwork:_processIncoming(data: buffer?): any
+function BasicNetwork:_processIncoming(...: buffer?): any
 	if not self.compress then
-		return data
+		return ...
 	end
-	local finalBuffer = data
+	local data = ...
 
-	finalBuffer = EncodingService:DecompressBuffer(data, Enum.CompressionAlgorithm.Zstd)
+	local finalBuffer = EncodingService:DecompressBuffer(data, Enum.CompressionAlgorithm.Zstd)
 
 	return bufferize.decode(finalBuffer)
 end
@@ -82,7 +82,7 @@ end
 
 function BasicNetwork.new(eventName: string, isFunction: boolean?, compress: boolean?, isUnreliable: boolean?)
 	local self = setmetatable({}, BasicNetwork)
-	self.compress = if compress ~= nil then compress else COMPRESSION
+	self.compress = if compress then compress else COMPRESSION
 
 	if not isClient and not remoteFolder:GetAttribute("Handshake") then
 		remoteFolder:SetAttribute("Handshake", HttpService:GenerateGUID(false))
@@ -132,12 +132,12 @@ end
 
 function BasicNetwork:Connect(callback)
 	if isClient then
-		self.instance.OnClientEvent:Connect(function(data: buffer)
-			callback(self:_processIncoming(data))
+		self.instance.OnClientEvent:Connect(function(...: buffer?)
+			callback(self:_processIncoming(...))
 		end)
 	else
-		self.instance.OnServerEvent:Connect(function(player: Player, data: buffer)
-			callback(player, self:_processIncoming(data))
+		self.instance.OnServerEvent:Connect(function(player: Player, ...: buffer?)
+			callback(player, self:_processIncoming(...))
 		end)
 	end
 end

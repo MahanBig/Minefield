@@ -5,7 +5,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local IsServer = RunService:IsServer()
 
-local RootDirectory = if IsServer then ServerScriptService else ReplicatedStorage.Shared
+local RootDirectory = if IsServer then ServerScriptService.Server else ReplicatedStorage.Shared
 local ModuleDirectory = if IsServer then RootDirectory.Services else RootDirectory:WaitForChild("Controllers")
 
 local function RequireModule(module: ModuleScript)
