@@ -7,14 +7,14 @@ realm = "shared"
 [dependencies]
 bufferize = "egomoose/bufferize@2.1.0"
 countryservice = "prooheckcp/countryservice@0.2.4"
-cmdr = "evaera/cmdr@1.12.0"
 promise = "evaera/promise@4.0.0"
 trove = "sleitnick/trove@1.8.0"
 satchel = "ronarudoog/satchel@0.1.0"
 ezvisualz = "arxkdev/ezvisualz@0.0.6"
+dataservice = "leifstout/dataservice@1.0.0"
 
 [server-dependencies]
-dataservice = "leifstout/dataservice@1.0.0"
+cmdr = "evaera/cmdr@1.12.0"
 
 [place]
 shared-packages = "game.ReplicatedStorage.Packages"

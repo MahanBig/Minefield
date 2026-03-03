@@ -2,6 +2,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local dataservice = require(ReplicatedStorage.Packages.dataservice).client
 
 local IsServer = RunService:IsServer()
 
@@ -20,17 +21,18 @@ local function RequireModule(module: ModuleScript)
 		if onStart then
 			local success, err = pcall(onStart)
 			if not success then
-				print("[❌] " .. module.Name .. " Failed to start")
+				print(`[❌] {module.Name} Failed to start!`)
 				warn(err)
 				return
 			end
-			print("[✅] " .. module.Name .. " Started!")
+			print(`[✅] {module.Name} Started!`)
 		end
 	end)
 end
 
 return function()
 	if not IsServer and Workspace:GetAttribute("ServerInitialized") ~= true then
+		dataservice:waitForData()
 		Workspace:GetAttributeChangedSignal("ServerInitialized"):Wait()
 	end
 	for _, descendant: ModuleScript in ModuleDirectory:GetDescendants() do

@@ -1,5 +1,5 @@
-local ServerScriptService = game:GetService("ServerScriptService")
-local dataservice = require(ServerScriptService.Packages.dataservice).server
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local dataservice = require(ReplicatedStorage.Packages.dataservice).server
 local Template = require(script.Template)
 
 local module = {}
