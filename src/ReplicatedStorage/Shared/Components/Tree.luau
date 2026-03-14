@@ -1,3 +1,4 @@
+local RunService = game:GetService("RunService")
 local Tree = {}
 Tree.Tag = script.Name
 Tree.__index = Tree
@@ -13,8 +14,9 @@ function Tree.new(instance)
 end
 
 function Tree:init()
-	self.instance.Touched:Connect(function(hit)
-		print("Touched by", hit:GetFullName())
+	self.instance.Anchored = true
+	RunService.Heartbeat:Connect(function(deltaTime: number)
+		self.instance.CFrame = self.instance.CFrame * CFrame.Angles(0, math.rad(30) * deltaTime, 0)
 	end)
 end
 

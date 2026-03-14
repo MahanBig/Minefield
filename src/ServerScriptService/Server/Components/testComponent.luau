@@ -1,5 +1,5 @@
 local testComponent = {}
-testComponent.Tag = "Test"
+testComponent.Tag = script.Name
 testComponent.__index = testComponent
 
 function testComponent.new(instance)
