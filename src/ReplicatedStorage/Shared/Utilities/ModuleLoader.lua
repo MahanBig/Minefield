@@ -9,33 +9,20 @@ local IsServer = RunService:IsServer()
 local RootDirectory = if IsServer then ServerScriptService.Server else ReplicatedStorage.Shared
 local ModuleDirectory = if IsServer then RootDirectory.Services else RootDirectory:WaitForChild("Controllers")
 
-local moduleStatus = {}
-
 local function RunLifecycleHook(module: ModuleScript, hookName: string, successWord: string, failWord: string)
 	local import = require(module)
 	local moduleName = module.Name
 	local hook = import[hookName]
 	if not hook then
-		moduleStatus[moduleName] = moduleStatus[moduleName] or {}
-		moduleStatus[moduleName][hookName] = false
 		return true
 	end
 
 	local success, err = pcall(hook)
 	if not success then
-		moduleStatus[moduleName] = moduleStatus[moduleName] or {}
-		moduleStatus[moduleName].status = "failed"
-		moduleStatus[moduleName].failedAt = hookName
-		moduleStatus[moduleName].error = err
-
 		print(`[❌] {moduleName} Failed to {failWord}!`)
 		warn(err)
 		return false
 	end
-
-	moduleStatus[moduleName] = moduleStatus[moduleName] or {}
-	moduleStatus[moduleName][hookName] = true
-	moduleStatus[moduleName].status = (hookName == "onStart") and "started" or "initialized"
 
 	print(`[✅] {moduleName} {successWord}!`)
 	return true
@@ -46,17 +33,12 @@ local function RequireModule(module: ModuleScript)
 		if not module:IsA("ModuleScript") then
 			return
 		end
-
-		local moduleName = module.Name
-		moduleStatus[moduleName] = { initialized = false, started = false, status = "pending" }
-
 		if not RunLifecycleHook(module, "onInit", "Initialized", "initialize") then
 			return
 		end
 		if not RunLifecycleHook(module, "onStart", "Started", "start") then
 			return
 		end
-		moduleStatus[moduleName].status = "started"
 	end)
 end
 
@@ -78,5 +60,4 @@ local loader = function()
 	end
 end
 
-loader.moduleStatus = moduleStatus
 return loader
