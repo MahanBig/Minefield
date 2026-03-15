@@ -2,7 +2,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local UIController = require(script.Parent)
+local UIController
 
 local DebugController = {}
 
@@ -10,6 +10,10 @@ local UPDATE_INTERVAL_FPS = 0.3
 
 local function formatValue(value): string
 	return `<b>{value}</b>`
+end
+
+function DebugController.onInit()
+	UIController = require(script.Parent)
 end
 
 function DebugController.onStart()
