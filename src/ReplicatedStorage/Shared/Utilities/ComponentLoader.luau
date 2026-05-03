@@ -12,17 +12,26 @@ local function loadComponent(modulescript: ModuleScript)
 
 	local function instanceAdded(instance)
 		CachedInstances[instance] = CachedInstances[instance] or {}
+		if CachedInstances[instance][thisTag] then
+			return
+		end
 		local newComponent = module.new(instance)
 		CachedInstances[instance][thisTag] = newComponent
 	end
 
 	local function instanceRemoving(instance)
-		for tag, component in CachedInstances[instance] do
+		local instanceCache = CachedInstances[instance]
+		if not instanceCache then
+			return
+		end
+
+		for tag, component in instanceCache do
 			if component.destroy then
 				component:destroy()
 			end
-			component[tag] = nil
+			instanceCache[tag] = nil
 		end
+		CachedInstances[instance] = nil
 	end
 
 	for _, existing in CollectionService:GetTagged(thisTag) do

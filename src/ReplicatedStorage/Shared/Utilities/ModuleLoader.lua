@@ -9,6 +9,10 @@ local IsServer = RunService:IsServer()
 local RootDirectory = if IsServer then ServerScriptService.Server else ReplicatedStorage.Shared
 local ModuleDirectory = if IsServer then RootDirectory.Services else RootDirectory:WaitForChild("Controllers")
 
+local function shouldIgnoreModule(module: ModuleScript)
+	return string.match(module.Name, "%(%d+%)$") ~= nil
+end
+
 local function RunLifecycleHook(module: ModuleScript, hookName: string, successWord: string, failWord: string)
 	local import = require(module)
 	local moduleName = module.Name
@@ -31,6 +35,9 @@ end
 local function RequireModule(module: ModuleScript)
 	task.spawn(function()
 		if not module:IsA("ModuleScript") then
+			return
+		end
+		if shouldIgnoreModule(module) then
 			return
 		end
 		if not RunLifecycleHook(module, "onInit", "Initialized", "initialize") then
