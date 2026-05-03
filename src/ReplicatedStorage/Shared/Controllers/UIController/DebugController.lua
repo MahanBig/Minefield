@@ -2,7 +2,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local UIController
+local UIController = require(script.Parent)
 
 local DebugController = {}
 
@@ -10,10 +10,6 @@ local UPDATE_INTERVAL_FPS = 0.3
 
 local function formatValue(value): string
 	return `<b>{value}</b>`
-end
-
-function DebugController.onInit()
-	UIController = require(script.Parent)
 end
 
 function DebugController.onStart()
@@ -34,9 +30,8 @@ function DebugController.onStart()
 			local fps = math.round(1 / deltaTime)
 			local ping = math.floor(localPlayer:GetNetworkPing() * 1000)
 			local physicsFps = math.floor(workspace:GetRealPhysicsFPS())
-			local region = ReplicatedStorage:GetAttribute("ServerRegion") or "Unknown Region"
-			local country = ReplicatedStorage:GetAttribute("ServerCountry") or "Unknown Country"
-			local location = `{region}, {country}`
+			local location =
+				`{ReplicatedStorage:GetAttribute("ServerRegion")}, {ReplicatedStorage:GetAttribute("ServerCountry")}`
 
 			fpsLabel.Text = "FPS: " .. formatValue(fps)
 			pingLabel.Text = "Ping: " .. formatValue(ping .. "ms")
