@@ -12,9 +12,3 @@ trove = "sleitnick/trove@1.8.0"
 satchel = "ronarudoog/satchel@0.1.0"
 ezvisualz = "arxkdev/ezvisualz@0.0.6"
 dataservice = "leifstout/dataservice@1.0.0"
-
-[server-dependencies]
-cmdr = "evaera/cmdr@1.12.0"
-
-[place]
-shared-packages = "game.ReplicatedStorage.Packages"
