@@ -1,19 +1,23 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local Debris = game:GetService("Debris")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 
+local BasicNetwork = require(ReplicatedStorage.Shared.Utilities.BasicNetwork)
 local RagdollService = require(ServerScriptService.Server.Services.RagdollService)
 
 local Landmine = {}
 Landmine.Tag = script.Name
 Landmine.__index = Landmine
 
+local LandmineExploded = BasicNetwork.new("LandmineExploded",false,false)
+
 local ARM_TIME = 0.12
 local DAMAGE = 45
-local HORIZONTAL_FORCE = 85
-local UPWARD_FORCE = 72
-local RAGDOLL_DURATION = 2.75
+local HORIZONTAL_FORCE = 150
+local UPWARD_FORCE = 200
+local RAGDOLL_DURATION = 2
 
 local function getBasePart(instance)
 	if instance:IsA("BasePart") then
@@ -42,6 +46,10 @@ function Landmine:init()
 		return
 	end
 
+	self.part.Transparency = 1
+	self.part.CanCollide = false
+	self.part.CanTouch = true
+
 	self.part.Touched:Connect(function(hit)
 		local character = hit:FindFirstAncestorOfClass("Model")
 		local player = character and Players:GetPlayerFromCharacter(character)
@@ -61,41 +69,10 @@ function Landmine:arm(humanoid)
 	end
 	self.armed = true
 	self.lastHumanoid = humanoid
-	self.part.BrickColor = BrickColor.new("Really red")
-	self.part.Material = Enum.Material.Neon
 
 	task.delay(ARM_TIME, function()
 		self:detonate()
 	end)
-end
-
-function Landmine:playExplosionEffect()
-	local blast = Instance.new("Part")
-	blast.Name = "LandmineBlast"
-	blast.Shape = Enum.PartType.Ball
-	blast.Size = Vector3.new(1, 1, 1)
-	blast.Anchored = true
-	blast.CanCollide = false
-	blast.Material = Enum.Material.Neon
-	blast.Color = Color3.fromRGB(255, 170, 0)
-	blast.Transparency = 0.15
-	blast.CFrame = self.part.CFrame
-	blast.Parent = workspace
-
-	task.spawn(function()
-		local growthSteps = 8
-		for step = 1, growthSteps do
-			if not blast.Parent then
-				return
-			end
-			local alpha = step / growthSteps
-			blast.Size = Vector3.new(1, 1, 1):Lerp(Vector3.new(12, 12, 12), alpha)
-			blast.Transparency = 0.15 + (alpha * 0.8)
-			task.wait(0.03)
-		end
-	end)
-
-	Debris:AddItem(blast, 0.35)
 end
 
 function Landmine:detonate()
@@ -103,11 +80,13 @@ function Landmine:detonate()
 		return
 	end
 	self.detonated = true
-	self:playExplosionEffect()
+
+	LandmineExploded:FireAllClients(self.instance, self.part.CFrame)
 
 	local humanoid = self.lastHumanoid
 	if humanoid and humanoid.Health > 0 then
 		humanoid:TakeDamage(DAMAGE)
+		RagdollService:RagdollCharacter(humanoid.Parent, RAGDOLL_DURATION)
 
 		local rootPart = humanoid.RootPart
 		if rootPart then
@@ -118,12 +97,11 @@ function Landmine:detonate()
 			rootPart.AssemblyLinearVelocity = (flingDirection.Unit * HORIZONTAL_FORCE) + Vector3.new(0, UPWARD_FORCE, 0)
 		end
 
-		RagdollService:RagdollCharacter(humanoid.Parent, RAGDOLL_DURATION, "blast")
+		
 	end
 
-	self.part.Transparency = 0.6
+	self.part.Transparency = 1
 	self.part.CanCollide = false
-	self.part.BrickColor = BrickColor.new("Really black")
 
 	CollectionService:RemoveTag(self.instance, Landmine.Tag)
 

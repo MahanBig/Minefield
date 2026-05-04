@@ -1,12 +1,19 @@
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
-local PlayerGui = Player:WaitForChild("PlayerGui")
-local MainGui = PlayerGui:WaitForChild("Main")
+local PlayerGui = nil
+local MainGui = nil
 
 local Shared = {}
 
-Shared.Guis = {
-	DebugUI = MainGui:WaitForChild("DebugUI"),
-}
+function Shared:onInit()
+	PlayerGui = Player:WaitForChild("PlayerGui")
+	MainGui = PlayerGui:WaitForChild("MainGui")
+	
+	Shared.Guis = {
+		DebugUI = MainGui:WaitForChild("DebugUI"),
+	}
+end
+
+
 
 return Shared

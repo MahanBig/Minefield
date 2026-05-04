@@ -132,11 +132,11 @@ end
 
 function BasicNetwork:Connect(callback)
 	if isClient then
-		self.instance.OnClientEvent:Connect(function(...: buffer?)
+		return self.instance.OnClientEvent:Connect(function(...: buffer?)
 			callback(self:_processIncoming(...))
 		end)
 	else
-		self.instance.OnServerEvent:Connect(function(player: Player, ...: buffer?)
+		return self.instance.OnServerEvent:Connect(function(player: Player, ...: buffer?)
 			callback(player, self:_processIncoming(...))
 		end)
 	end

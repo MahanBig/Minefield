@@ -50,7 +50,12 @@ dependencies = []
 [[package]]
 name = "mahan/minefield"
 version = "0.1.0"
-dependencies = [["bufferize", "egomoose/bufferize@2.1.0"], ["countryservice", "prooheckcp/countryservice@0.2.4"], ["dataservice", "leifstout/dataservice@1.0.0"], ["ezvisualz", "arxkdev/ezvisualz@0.0.6"], ["promise", "evaera/promise@4.0.0"], ["satchel", "ronarudoog/satchel@0.1.0"], ["trove", "sleitnick/trove@1.8.0"]]
+dependencies = [["anti-anthro", "miagobble/anti-anthro@1.0.1"], ["bufferize", "egomoose/bufferize@2.1.0"], ["countryservice", "prooheckcp/countryservice@0.2.4"], ["dataservice", "leifstout/dataservice@1.0.0"], ["ezvisualz", "arxkdev/ezvisualz@0.0.6"], ["promise", "evaera/promise@4.0.0"], ["satchel", "ronarudoog/satchel@0.1.0"], ["trove", "sleitnick/trove@1.8.0"]]
+
+[[package]]
+name = "miagobble/anti-anthro"
+version = "1.0.1"
+dependencies = []
 
 [[package]]
 name = "prooheckcp/countryservice"

@@ -10,36 +10,36 @@ local RootDirectory = if IsServer then ServerScriptService.Server else Replicate
 local ModuleDirectory = if IsServer then RootDirectory.Services else RootDirectory:WaitForChild("Controllers")
 
 local function RunLifecycleHook(module: ModuleScript, hookName: string, successWord: string, failWord: string)
+
 	local import = require(module)
 	local moduleName = module.Name
 	local hook = import[hookName]
 	if not hook then
-		return true
+		return 
 	end
 
 	local success, err = pcall(hook)
 	if not success then
 		print(`[❌] {moduleName} Failed to {failWord}!`)
 		warn(err)
-		return false
+		return 
 	end
 
 	print(`[✅] {moduleName} {successWord}!`)
-	return true
 end
 
-local function RequireModule(module: ModuleScript)
+local function RequireModule(module: ModuleScript, initialize: boolean)
 	task.spawn(function()
 		if not module:IsA("ModuleScript") then
 			return
 		end
 		
-		if not RunLifecycleHook(module, "onInit", "Initialized", "initialize") then
-			return
+		if initialize then
+			RunLifecycleHook(module, "onInit", "Initialized", "initialize")
+			else
+			RunLifecycleHook(module, "onStart", "Started", "start")
 		end
-		if not RunLifecycleHook(module, "onStart", "Started", "start") then
-			return
-		end
+
 	end)
 end
 
@@ -49,14 +49,18 @@ function init()
 		Workspace:GetAttributeChangedSignal("ServerInitialized"):Wait()
 	end
 	for _, descendant: ModuleScript in ModuleDirectory:GetDescendants() do
-		RequireModule(descendant)
+		RequireModule(descendant, true)
+	end
+	for _, descendant: ModuleScript in ModuleDirectory:GetDescendants() do
+		RequireModule(descendant, false)
 	end
 	if IsServer then
 		Workspace:SetAttribute("ServerInitialized", true)
 	end
 	if not IsServer then
 		ModuleDirectory.DescendantAdded:Connect(function(descendant: ModuleScript)
-			RequireModule(descendant)
+			RequireModule(descendant, true)
+			RequireModule(descendant, false)
 		end)
 	end
 end
