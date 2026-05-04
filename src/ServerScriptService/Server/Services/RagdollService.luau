@@ -1,4 +1,5 @@
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 
 local RagdollService = {}
 
@@ -7,6 +8,8 @@ local CONSTRAINTS_FOLDER_NAME = "Constraints"
 local COLLIDERS_FOLDER_NAME = "Colliders"
 local RAGDOLL_ATTRIBUTE = "Ragdolling"
 local PREPARED_ATTRIBUTE = "RagdollPrepared"
+local STABLE_VELOCITY_THRESHOLD = 2.5
+local GROUND_CHECK_DISTANCE = 3
 
 local function isCharacterPart(character, instance)
 	return instance:IsA("BasePart") and instance.Parent == character and instance.Name ~= "HumanoidRootPart"
@@ -78,6 +81,79 @@ local function disableColliderSelfCollision(colliders)
 			noCollision.Parent = collider
 		end
 	end
+end
+
+local function getCharacterParts(character)
+	local parts = {}
+
+	for _, descendant in character:GetDescendants() do
+		if descendant:IsA("BasePart") then
+			table.insert(parts, descendant)
+		end
+	end
+
+	return parts
+end
+
+local function isCharacterGrounded(character, parts)
+	local raycastParams = RaycastParams.new()
+	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+	raycastParams.FilterDescendantsInstances = { character }
+
+	for _, part in parts do
+		if part.Parent and part.Name ~= "HumanoidRootPart" then
+			local result = workspace:Raycast(part.Position, Vector3.new(0, -GROUND_CHECK_DISTANCE, 0), raycastParams)
+			if result then
+				return true
+			end
+		end
+	end
+
+	return false
+end
+
+local function isCharacterStable(character)
+	local parts = getCharacterParts(character)
+	if #parts == 0 or not isCharacterGrounded(character, parts) then
+		return false
+	end
+
+	for _, part in parts do
+		if part.Parent and part.AssemblyLinearVelocity.Magnitude > STABLE_VELOCITY_THRESHOLD then
+			return false
+		end
+	end
+
+	return true
+end
+
+local function waitForStableRagdoll(character, stableDuration, callback)
+	local stableTime = 0
+	local connection
+
+	connection = RunService.Heartbeat:Connect(function(deltaTime)
+		if not character or not character.Parent or character:GetAttribute(RAGDOLL_ATTRIBUTE) ~= true then
+			connection:Disconnect()
+			return
+		end
+
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if not humanoid or humanoid.Health <= 0 then
+			connection:Disconnect()
+			return
+		end
+
+		if isCharacterStable(character) then
+			stableTime += deltaTime
+		else
+			stableTime = 0
+		end
+
+		if stableTime >= stableDuration then
+			connection:Disconnect()
+			callback()
+		end
+	end)
 end
 
 function RagdollService.onStart()
@@ -208,7 +284,7 @@ function RagdollService:RagdollCharacter(character, duration)
 		end
 	end
 
-	task.delay(duration, function()
+	waitForStableRagdoll(character, duration, function()
 		self:UnragdollCharacter(character, disabledMotors, collisionCache, previousAutoRotate, previousRequiresNeck)
 	end)
 end

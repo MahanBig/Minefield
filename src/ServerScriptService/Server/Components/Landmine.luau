@@ -14,10 +14,10 @@ Landmine.__index = Landmine
 local LandmineExploded = BasicNetwork.new("LandmineExploded",false,false)
 
 local ARM_TIME = 0.12
-local DAMAGE = 45
+local DAMAGE = 0
 local HORIZONTAL_FORCE = 150
 local UPWARD_FORCE = 200
-local RAGDOLL_DURATION = 2
+local RAGDOLL_DURATION = 1
 
 local function getBasePart(instance)
 	if instance:IsA("BasePart") then
@@ -90,14 +90,15 @@ function Landmine:detonate()
 
 		local rootPart = humanoid.RootPart
 		if rootPart then
-			local flingDirection = rootPart.CFrame.LookVector
+			local lookVector = rootPart.CFrame.LookVector
+			local flingDirection = Vector3.new(lookVector.X, 0, lookVector.Z)
+
 			if flingDirection.Magnitude < 0.001 then
 				flingDirection = Vector3.new(0, 0, -1)
 			end
+
 			rootPart.AssemblyLinearVelocity = (flingDirection.Unit * HORIZONTAL_FORCE) + Vector3.new(0, UPWARD_FORCE, 0)
 		end
-
-		
 	end
 
 	self.part.Transparency = 1
