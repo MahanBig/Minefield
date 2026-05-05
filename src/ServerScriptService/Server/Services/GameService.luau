@@ -1,17 +1,64 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local ServerScriptService = game:GetService("ServerScriptService")
 local GameService = {} 
 
-local MAP_FOLDER: Folder = workspace.Map
-local SEGMENTS_FOLDER: Folder = MAP_FOLDER.Segments
+local SEGMENTS_FOLDER: Folder = workspace.Map.Segments
+
+local activeHazards = {}
 
 local MINES_PER_SEGMENT = 200
 local RANDOM = Random.new()
 
 function GameService.onStart()
-    for _, segment in SEGMENTS_FOLDER:GetChildren() do
-        if segment:IsA("Model") then
-            populateSegmentWithLandmines(segment)
+    while true do
+        for _, segment in SEGMENTS_FOLDER:GetChildren() do
+            if segment:IsA("Model") then
+                populateSegmentWithLandmines(segment)
+                applyRandomHazard(segment)
+            end
+        end
+        task.wait(30)
+        for _, segment in SEGMENTS_FOLDER:GetChildren() do
+            if segment:IsA("Model") then
+                destroyHazard(segment)
+            end
         end
     end
+end
+
+function applyRandomHazard(segment:Model)
+    local hazardTypes = ServerScriptService.Server.Hazards:GetChildren()
+    local randomIndex = RANDOM:NextInteger(1, #hazardTypes)
+    local selectedHazard = hazardTypes[randomIndex]
+    applyHazard(segment, selectedHazard.Name)
+end
+
+function destroyHazard(segment:Model)
+    local hazard = activeHazards[segment]
+    if hazard then
+        hazard:destroy()
+        activeHazards[segment] = nil
+    end
+    local hazardModel = segment:FindFirstChild("Hazard")
+    if hazardModel then
+        hazardModel:Destroy()
+    end
+end
+
+function applyHazard(segment:Model, hazardName: string)
+    local hazardFolder = ReplicatedStorage.Assets.Hazards
+    local hazard = hazardFolder:FindFirstChild(hazardName)
+
+    assert(hazard,"Hazard was not found")
+
+    local hazardClone = hazard:Clone()
+    hazardClone.Name = "Hazard"
+    hazardClone.Parent = segment
+    hazardClone:PivotTo(segment:GetPivot())
+
+    local hazardModule = require(ServerScriptService.Server.Hazards:FindFirstChild(hazardName))
+    local newHazard = hazardModule.new(hazardClone)
+    activeHazards[segment] = newHazard
 end
 
 function getOrMakeFolder(parent: Instance, folderName: string): Folder
